@@ -37,23 +37,17 @@ def find_max_dyno(dynos)
   dynos.max_by { |k, v| v }
 end
 
-def extract_attributes
-  file = File.open('sample.log')
-  file.each_line do |f|
-    log = f.split /\s+/
-    @timestamp = log.shift
-    @heroku = log.shift
-    @log_level = log.shift
-    @method = log.shift.sub!('method=', '')
-    @path = log.shift.sub!('path=', '')
-    @host = log.shift
-    @fwd = log.shift
-    @dyno = log.shift.sub('dyno=', '')
-    @connect = log.shift.sub!('connect=', '')
-    @service = log.shift.sub!('service=', '')
-
-    analyze_log
-  end
+def extract_attributes(log)
+  @timestamp = log.shift
+  @heroku = log.shift
+  @log_level = log.shift
+  @method = log.shift.sub!('method=', '')
+  @path = log.shift.sub!('path=', '')
+  @host = log.shift
+  @fwd = log.shift
+  @dyno = log.shift.sub('dyno=', '')
+  @connect = log.shift.sub!('connect=', '')
+  @service = log.shift.sub!('service=', '')
 end
 
 def analyze_log
@@ -85,6 +79,12 @@ def shout_out
   end
 end
 
-extract_attributes
+file = File.open('sample.log')
+file.each_line do |f|
+  log = f.split /\s+/
+  extract_attributes(log)
+  analyze_log
+end
+
 shout_out
 
