@@ -52,19 +52,27 @@ def extract_attributes
     @connect = log.shift.sub!('connect=', '')
     @service = log.shift.sub!('service=', '')
 
-    # Replace user id with param
-    @path.gsub!(/\d+/, "{user_id}")
+    analyze_log
+  end
+end
 
-    @hash_result.each do |key, value|
-      if key == "#{@method} #{@path}"
-        value[:count] += 1
-        value[:response_times] << @connect.to_i + @service.to_i
-        value[:dynos][@dyno] ||= 0
-        value[:dynos][@dyno] += 1
-      end
+def analyze_log
+  replace_user_id
+  @hash_result.each do |key, value|
+    if key == "#{@method} #{@path}"
+      value[:count] += 1
+      value[:response_times] << @connect.to_i + @service.to_i
+      value[:dynos][@dyno] ||= 0
+      value[:dynos][@dyno] += 1
     end
   end
 end
+
+def replace_user_id
+  # Replace user id with param
+  @path.gsub!(/\d+/, "{user_id}")
+end
+
 
 def shout_out
   @hash_result.each do |key, value|
